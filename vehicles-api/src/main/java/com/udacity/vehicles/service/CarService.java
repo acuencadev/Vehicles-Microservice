@@ -42,13 +42,7 @@ public class CarService {
      * @return the requested car's information, including location and price
      */
     public Car findById(Long id) {
-        Optional<Car> carOptional = repository.findById(id);
-
-        if (carOptional.isEmpty()) {
-            throw new CarNotFoundException();
-        }
-
-        Car car = carOptional.get();
+        Car car = getCarOrThrowException(id);
 
         String newPrice = priceClient.getPrice(car.getId());
         car.setPrice(newPrice);
@@ -82,14 +76,18 @@ public class CarService {
      * @param id the ID number of the car to delete
      */
     public void delete(Long id) {
+        Car car = getCarOrThrowException(id);
+
+        repository.delete(car);
+    }
+
+    private Car getCarOrThrowException(Long id) {
         Optional<Car> carOptional = repository.findById(id);
 
         if (carOptional.isEmpty()) {
             throw new CarNotFoundException();
         }
 
-        Car car = carOptional.get();
-
-        repository.delete(car);
+        return carOptional.get();
     }
 }
